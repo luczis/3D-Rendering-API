@@ -3,8 +3,8 @@ Built from scratch, it is a rendering API developed as a challenge to myself and
 
 # TODO
 
-- ~~Implement texture decoder;
-- ~~Implement depth checking;
+- ~~Implement texture decoder~~;
+- ~~Implement depth checking~~;
 - Implement Matrix and quaternions operations;
 - Implement MVP matrix calculation;
 - Implement .obj file reading;
