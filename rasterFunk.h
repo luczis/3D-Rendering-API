@@ -169,12 +169,12 @@ struct vertex{
 	float uvy;
 };
 
-float fbx_grid[WIN_WIDTH*WIN_HEIGHT];
-float fby_grid[WIN_WIDTH*WIN_HEIGHT];
-float depth_grid[WIN_WIDTH*WIN_HEIGHT];
+float fbx_grid[WIN_WIDTH*(WIN_HEIGHT+1)];
+float fby_grid[WIN_WIDTH*(WIN_HEIGHT+1)];
+float depth_grid[WIN_WIDTH*(WIN_HEIGHT+1)];
 
-//#define LTO_F 0.999999940395355224609375f
-#define LTO_F 1.0f
+#define LTO_F 0.999999940395355224609375f
+//#define LTO_F 1.0f
 
 // Bresenham Algorithm for points
 void drawlinef(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, float val0, float val1, float* sel_grid) {
@@ -223,7 +223,7 @@ void drawlinef(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, float val0, f
 		}
 		sign = dy>0 ? 1 : -1;
 		delta_val = (val1-val0)/(dx);
-		for(x=x0; x<=x1; x++) {
+		for(x=x0; x<x1; x++) {
 			current_val += delta_val;
 			sel_grid[x+WIN_WIDTH*y] = current_val;
 			er += der;
@@ -241,7 +241,7 @@ void drawlinef(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, float val0, f
 		sign = dx>0 ? 1 : -1;
 		der = 1/der;
 		delta_val = (val1-val0)/(dy);
-		for(y=y0; y<=y1; y++) {
+		for(y=y0; y<y1; y++) {
 			current_val += delta_val;
 			sel_grid[x+WIN_WIDTH*y] = current_val;
 			er += der;
@@ -293,12 +293,12 @@ void draw_triangle_image(vertex v0, vertex v1, vertex v2){
 	uint16_t x0, x1, x2;
 	uint16_t y0, y1, y2;
 	
-	x0 = (uint16_t)((v0.x+1.0f)*WIN_WIDTH)>>1;
-	x1 = (uint16_t)((v1.x+1.0f)*WIN_WIDTH)>>1;
-	x2 = (uint16_t)((v2.x+1.0f)*WIN_WIDTH)>>1;
-	y0 = (uint16_t)((v0.y+1.0f)*WIN_HEIGHT)>>1;
-	y1 = (uint16_t)((v1.y+1.0f)*WIN_HEIGHT)>>1;
-	y2 = (uint16_t)((v2.y+1.0f)*WIN_HEIGHT)>>1;
+	x0 = ((uint16_t)math::clamp<short>((short)((v0.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x1 = ((uint16_t)math::clamp<short>((short)((v1.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x2 = ((uint16_t)math::clamp<short>((short)((v2.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	y0 = ((uint16_t)math::clamp<short>((short)((v0.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y1 = ((uint16_t)math::clamp<short>((short)((v1.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y2 = ((uint16_t)math::clamp<short>((short)((v2.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
 
 	uint16_t bx, sx, by, sy;
 	bx = x0>x1 ? x0 : x1;
@@ -317,12 +317,12 @@ void draw_triangle_image(vertex v0, vertex v1, vertex v2){
 			depth_grid[x+WIN_WIDTH*y] = nanf("");
 		}
 
-	if(v0.uvx==1.0f) v0.uvx = LTO_F;
+	/*if(v0.uvx==1.0f) v0.uvx = LTO_F;
 	if(v1.uvx==1.0f) v1.uvx = LTO_F;
 	if(v2.uvx==1.0f) v2.uvx = LTO_F;
 	if(v0.uvy==1.0f) v0.uvy = LTO_F;
 	if(v1.uvy==1.0f) v1.uvy = LTO_F;
-	if(v2.uvy==1.0f) v2.uvy = LTO_F;
+	if(v2.uvy==1.0f) v2.uvy = LTO_F;*/
 
 	drawlinef(x0,y0,x1,y1,v0.z,v1.z,depth_grid);
 	drawlinef(x1,y1,x2,y2,v1.z,v2.z,depth_grid);
@@ -365,14 +365,23 @@ void draw_square_image(vertex v0, vertex v1, vertex v2, vertex v3){
 	uint16_t x0, x1, x2, x3;
 	uint16_t y0, y1, y2, y3;
 	
-	x0 = (uint16_t)((v0.x+1.0f)*WIN_WIDTH)>>1;
-	x1 = (uint16_t)((v1.x+1.0f)*WIN_WIDTH)>>1;
-	x2 = (uint16_t)((v2.x+1.0f)*WIN_WIDTH)>>1;
-	x3 = (uint16_t)((v3.x+1.0f)*WIN_WIDTH)>>1;
-	y0 = (uint16_t)((v0.y+1.0f)*WIN_HEIGHT)>>1;
-	y1 = (uint16_t)((v1.y+1.0f)*WIN_HEIGHT)>>1;
-	y2 = (uint16_t)((v2.y+1.0f)*WIN_HEIGHT)>>1;
-	y3 = (uint16_t)((v3.y+1.0f)*WIN_HEIGHT)>>1;
+	/*x0 = (uint16_t)math::clamp((short)((v0.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x1 = (uint16_t)math::clamp((short)((v1.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x2 = (uint16_t)math::clamp((short)((v2.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x3 = (uint16_t)math::clamp((short)((v3.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	y0 = (uint16_t)math::clamp((short)((v0.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y1 = (uint16_t)math::clamp((short)((v1.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y2 = (uint16_t)math::clamp((short)((v2.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y3 = (uint16_t)math::clamp((short)((v3.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);*/
+	x0 = ((uint16_t)math::clamp<short>((short)((v0.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x1 = ((uint16_t)math::clamp<short>((short)((v1.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x2 = ((uint16_t)math::clamp<short>((short)((v2.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x3 = ((uint16_t)math::clamp<short>((short)((v3.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	y0 = ((uint16_t)math::clamp<short>((short)((v0.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y1 = ((uint16_t)math::clamp<short>((short)((v1.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y2 = ((uint16_t)math::clamp<short>((short)((v2.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y3 = ((uint16_t)math::clamp<short>((short)((v3.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	//printf("%i,%i,%i,%i,%i,%i,%i,%i\n",x0,x1,x2,x3,y0,y1,y2,y3);
 
 	uint16_t bx, sx, by, sy;
 	bx = x0>x1 ? x0 : x1;
@@ -388,19 +397,19 @@ void draw_square_image(vertex v0, vertex v1, vertex v2, vertex v3){
 	sy = sy<y2 ? sy : y2;
 	sy = sy<y3 ? sy : y3;
 
-	for(uint16_t x=sx; x<bx+1; x++)
-		for(uint16_t y=sy; y<by+1; y++) {
+	for(uint16_t x=sx; x<=bx; x++)
+		for(uint16_t y=sy; y<=by; y++) {
 			fbx_grid[x+WIN_WIDTH*y] = nanf("");
 			fby_grid[x+WIN_WIDTH*y] = nanf("");
 			depth_grid[x+WIN_WIDTH*y] = nanf("");
 		}
 
-	if(v0.uvx==1.0f) v0.uvx = LTO_F;
+	/*if(v0.uvx==1.0f) v0.uvx = LTO_F;
 	if(v1.uvx==1.0f) v1.uvx = LTO_F;
 	if(v2.uvx==1.0f) v2.uvx = LTO_F;
 	if(v0.uvy==1.0f) v0.uvy = LTO_F;
 	if(v1.uvy==1.0f) v1.uvy = LTO_F;
-	if(v2.uvy==1.0f) v2.uvy = LTO_F;
+	if(v2.uvy==1.0f) v2.uvy = LTO_F;*/
 
 	drawlinef(x0,y0,x1,y1,v0.z,v1.z,depth_grid);
 	drawlinef(x1,y1,x2,y2,v1.z,v2.z,depth_grid);

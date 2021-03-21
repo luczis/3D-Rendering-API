@@ -59,6 +59,11 @@ namespace math {
 		return val < 0 ? -val : val;
 	}
 
+	template<typename T>
+	T clamp(T val, T max, T min) {
+		return (val >= max) ? max : ((val <= min) ? min : val);
+	}
+
 	// Series sine function
 	float sin(float val, unsigned int iterations = 5)
 	{

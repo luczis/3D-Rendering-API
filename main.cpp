@@ -23,6 +23,22 @@ uint16_t depth_buffer[WIN_WIDTH*WIN_HEIGHT];
 #include "imagePpmFunk.h"
 #include "rasterFunk.h"
 
+vertex cube_v[8];
+uint16_t face_order[4*6] = {
+0,1,3,2,
+2,3,7,6,
+0,1,5,4,
+0,4,6,2,
+1,5,7,3,
+4,5,7,6};
+uint16_t tex_order[4*6] = {
+2,3,1,0,
+2,3,1,0,
+2,3,1,0,
+2,3,1,0,
+2,3,1,0,
+2,3,1,0};
+
 // Draw raster
 void drawRaster()
 {
@@ -66,7 +82,6 @@ void display()
 		}
 	}
 
-
 	/*uint16_t x0,x1,x2,x3,y0,y1,y2,y3;
 	x0=(uint16_t)(rand()%WIN_WIDTH),
 	y0=(uint16_t)(rand()%WIN_HEIGHT),
@@ -91,8 +106,7 @@ void display()
 	//draw_square(1621,75,1157,957,1649,786,919,680,0x4ef2,0x1f);
 	//drawline(589,444,351,782,0x00,0x7e00);
 
-	cplx<float> a;
-
+	/*
 	//std::cout<< "abc";
 	vertex v0,v1,v2,v3;
 	v0.x = 0.5f;
@@ -121,7 +135,27 @@ void display()
 	v1.y -= 0.5f;
 	v2.y -= 1.0f;
 	v3.y -= 1.0f;
-	draw_square_image(v0,v1,v2,v3);
+	draw_square_image(v0,v1,v2,v3);*/
+	//draw_square_image(cube_v[0],cube_v[1],cube_v[2],cube_v[4]);
+	
+	vertex v0,v1,v2,v3;
+	for(uint16_t i=0; i<24; i+=4) {
+		//printf("%i:",i);
+
+		v0 = cube_v[face_order[i]];
+		v1 = cube_v[face_order[i+1]];
+		v2 = cube_v[face_order[i+2]];
+		v3 = cube_v[face_order[i+3]];
+		v0.uvx = cube_v[tex_order[i]].uvx;
+		v0.uvy = cube_v[tex_order[i]].uvy;
+		v1.uvx = cube_v[tex_order[i+1]].uvx;
+		v1.uvy = cube_v[tex_order[i+1]].uvy;
+		v2.uvx = cube_v[tex_order[i+2]].uvx;
+		v2.uvy = cube_v[tex_order[i+2]].uvy;
+		v3.uvx = cube_v[tex_order[i+3]].uvx;
+		v3.uvy = cube_v[tex_order[i+3]].uvy;
+		draw_square_image(v0,v1,v2,v3);
+	}
 
 	drawRaster();
 
@@ -142,7 +176,48 @@ void mouse(int button, int state, int x, int y)
 
 void init()
 {
-	/* Initializations */
+	cube_v[0].x = -0.5f;
+	cube_v[0].y = -0.5f;
+	cube_v[0].z = 0.0f;
+	cube_v[0].uvx = 0.0f;
+	cube_v[0].uvy = 0.0f;
+	cube_v[1].x = 0.0f;
+	cube_v[1].y = -1.0f;
+	cube_v[1].z = -1.0f;
+	cube_v[1].uvx = 1.0f;
+	cube_v[1].uvy = 0.0f;
+	cube_v[2].x = -0.5f;
+	cube_v[2].y = 0.5f;
+	cube_v[2].z = 0.0f;
+	cube_v[2].uvx = 0.0f;
+	cube_v[2].uvy = 1.0f;
+	cube_v[3].x = 0.0f;
+	cube_v[3].y = 0.0f;
+	cube_v[3].z = -1.0f;
+	cube_v[3].uvx = 1.0f;
+	cube_v[3].uvy = 1.0f;
+	cube_v[4].x = 0.0f;
+	cube_v[4].y = 0.0f;
+	cube_v[4].z = 1.0f;
+	cube_v[4].uvx = 0.0f;
+	cube_v[4].uvy = 0.0f;
+	cube_v[5].x = 0.5f;
+	cube_v[5].y = -0.5f;
+	cube_v[5].z = 0.0f;
+	cube_v[5].uvx = 1.0f;
+	cube_v[5].uvy = 0.0f;
+	cube_v[6].x = 0.0f;
+	cube_v[6].y = 1.0f;
+	cube_v[6].z = 1.0f;
+	cube_v[6].uvx = 0.0f;
+	cube_v[6].uvy = 1.0f;
+	cube_v[7].x = 0.5f;
+	cube_v[7].y = 0.5f;
+	cube_v[7].z = 0.0f;
+	cube_v[7].uvx = 1.0f;
+	cube_v[7].uvy = 1.0f;
+
+	// Initializations
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
 	glutInitWindowPosition(0, 0);
@@ -174,7 +249,6 @@ void init()
 	load_ppm_texture("resources/Landscape.ppm");
 
 }
-
 
 int main(int argc, char ** argv)
 {
