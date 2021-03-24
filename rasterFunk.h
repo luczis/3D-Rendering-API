@@ -361,26 +361,26 @@ void draw_triangle_image(vertex v0, vertex v1, vertex v2){
 
 
 // Render square with texture
-void draw_square_image(vertex v0, vertex v1, vertex v2, vertex v3){
+void draw_square_image(float* pos0, float* pos1, float* pos2, float* pos3, float* uv0, float* uv1, float* uv2, float* uv3){
 	uint16_t x0, x1, x2, x3;
 	uint16_t y0, y1, y2, y3;
 	
-	/*x0 = (uint16_t)math::clamp((short)((v0.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
-	x1 = (uint16_t)math::clamp((short)((v1.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
-	x2 = (uint16_t)math::clamp((short)((v2.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
-	x3 = (uint16_t)math::clamp((short)((v3.x+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
-	y0 = (uint16_t)math::clamp((short)((v0.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
-	y1 = (uint16_t)math::clamp((short)((v1.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
-	y2 = (uint16_t)math::clamp((short)((v2.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
-	y3 = (uint16_t)math::clamp((short)((v3.y+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);*/
-	x0 = ((uint16_t)math::clamp<short>((short)((v0.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
-	x1 = ((uint16_t)math::clamp<short>((short)((v1.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
-	x2 = ((uint16_t)math::clamp<short>((short)((v2.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
-	x3 = ((uint16_t)math::clamp<short>((short)((v3.x+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
-	y0 = ((uint16_t)math::clamp<short>((short)((v0.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
-	y1 = ((uint16_t)math::clamp<short>((short)((v1.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
-	y2 = ((uint16_t)math::clamp<short>((short)((v2.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
-	y3 = ((uint16_t)math::clamp<short>((short)((v3.y+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	/*x0 = (uint16_t)math::clamp((short)((pos0[0]+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x1 = (uint16_t)math::clamp((short)((pos1[0]+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x2 = (uint16_t)math::clamp((short)((pos2[0]+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	x3 = (uint16_t)math::clamp((short)((pos3[0]+1.0f)*WIN_WIDTH)>>1,WIN_WIDTH-1, 0);
+	y0 = (uint16_t)math::clamp((short)((pos0[1]+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y1 = (uint16_t)math::clamp((short)((pos1[1]+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y2 = (uint16_t)math::clamp((short)((pos2[1]+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);
+	y3 = (uint16_t)math::clamp((short)((pos3[1]+1.0f)*WIN_HEIGHT)>>1,WIN_HEIGHT-1, 0);*/
+	x0 = ((uint16_t)math::clamp<short>((short)((pos0[0]+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x1 = ((uint16_t)math::clamp<short>((short)((pos1[0]+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x2 = ((uint16_t)math::clamp<short>((short)((pos2[0]+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	x3 = ((uint16_t)math::clamp<short>((short)((pos3[0]+1.0f)*WIN_WIDTH),2*WIN_WIDTH-1, 0))>>1;
+	y0 = ((uint16_t)math::clamp<short>((short)((pos0[1]+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y1 = ((uint16_t)math::clamp<short>((short)((pos1[1]+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y2 = ((uint16_t)math::clamp<short>((short)((pos2[1]+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
+	y3 = ((uint16_t)math::clamp<short>((short)((pos3[1]+1.0f)*WIN_HEIGHT),2*WIN_HEIGHT-1, 0))>>1;
 	//printf("%i,%i,%i,%i,%i,%i,%i,%i\n",x0,x1,x2,x3,y0,y1,y2,y3);
 
 	uint16_t bx, sx, by, sy;
@@ -404,46 +404,47 @@ void draw_square_image(vertex v0, vertex v1, vertex v2, vertex v3){
 			depth_grid[x+WIN_WIDTH*y] = nanf("");
 		}
 
-	/*if(v0.uvx==1.0f) v0.uvx = LTO_F;
-	if(v1.uvx==1.0f) v1.uvx = LTO_F;
-	if(v2.uvx==1.0f) v2.uvx = LTO_F;
-	if(v0.uvy==1.0f) v0.uvy = LTO_F;
-	if(v1.uvy==1.0f) v1.uvy = LTO_F;
-	if(v2.uvy==1.0f) v2.uvy = LTO_F;*/
+	/*if(uv0[0]==1.0f) uv0[0] = LTO_F;
+	if(uv1[0]==1.0f) uv1[0] = LTO_F;
+	if(uv2[0]==1.0f) uv2[0] = LTO_F;
+	if(uv0[1]==1.0f) uv0[1] = LTO_F;
+	if(uv1[1]==1.0f) uv1[1] = LTO_F;
+	if(uv2[1]==1.0f) uv2[1] = LTO_F;*/
 
-	drawlinef(x0,y0,x1,y1,v0.z,v1.z,depth_grid);
-	drawlinef(x1,y1,x2,y2,v1.z,v2.z,depth_grid);
-	drawlinef(x2,y2,x3,y3,v2.z,v3.z,depth_grid);
-	drawlinef(x3,y3,x0,y0,v3.z,v0.z,depth_grid);
+	drawlinef(x0,y0,x1,y1,pos0[2],pos1[2],depth_grid);
+	drawlinef(x1,y1,x2,y2,pos1[2],pos2[2],depth_grid);
+	drawlinef(x2,y2,x3,y3,pos2[2],pos3[2],depth_grid);
+	drawlinef(x3,y3,x0,y0,pos3[2],pos0[2],depth_grid);
 	fill_polygonf(sx,sy,bx+1,by+1,depth_grid);
 
-	drawlinef(x0,y0,x1,y1,v0.uvx,v1.uvx,fbx_grid);
-	drawlinef(x1,y1,x2,y2,v1.uvx,v2.uvx,fbx_grid);
-	drawlinef(x2,y2,x3,y3,v2.uvx,v3.uvx,fbx_grid);
-	drawlinef(x3,y3,x0,y0,v3.uvx,v0.uvx,fbx_grid);
+	drawlinef(x0,y0,x1,y1,uv0[0],uv1[0],fbx_grid);
+	drawlinef(x1,y1,x2,y2,uv1[0],uv2[0],fbx_grid);
+	drawlinef(x2,y2,x3,y3,uv2[0],uv3[0],fbx_grid);
+	drawlinef(x3,y3,x0,y0,uv3[0],uv0[0],fbx_grid);
 	fill_polygonf(sx,sy,bx+1,by+1,fbx_grid);
 
-	drawlinef(x0,y0,x1,y1,v0.uvy,v1.uvy,fby_grid);
-	drawlinef(x1,y1,x2,y2,v1.uvy,v2.uvy,fby_grid);
-	drawlinef(x2,y2,x3,y3,v2.uvy,v3.uvy,fby_grid);
-	drawlinef(x3,y3,x0,y0,v3.uvy,v0.uvy,fby_grid);
+	drawlinef(x0,y0,x1,y1,uv0[1],uv1[1],fby_grid);
+	drawlinef(x1,y1,x2,y2,uv1[1],uv2[1],fby_grid);
+	drawlinef(x2,y2,x3,y3,uv2[1],uv3[1],fby_grid);
+	drawlinef(x3,y3,x0,y0,uv3[1],uv0[1],fby_grid);
 	fill_polygonf(sx,sy,bx+1,by+1,fby_grid);
 
-	uint16_t fb_x, fb_y, depth_val;
+	uint16_t fb_x, fb_y;
+	int depth_val;
 	for(uint16_t x=sx; x<=bx; x++)
 		for(uint16_t y=sy; y<=by; y++) {
 			if(!std::isnan(fbx_grid[x+WIN_WIDTH*y])) {
-				depth_val = (uint16_t)(0xffff*((depth_grid[x+WIN_WIDTH*y]+1.0f)/2.0f));
-				if(depth_val > depth_buffer[x+WIN_WIDTH*y])
-					continue;
-				fb_x = (uint16_t)(texture_ppm.width*fbx_grid[x+WIN_WIDTH*y])%texture_ppm.width;
-				fb_y = (uint16_t)(texture_ppm.height*fby_grid[x+WIN_WIDTH*y])%texture_ppm.height;
+				depth_val = 0xffff*((depth_grid[x+WIN_WIDTH*y]+1.0f)/2.0f);
+				if((depth_val < depth_buffer[x+WIN_WIDTH*y]) & (depth_val > 0) & (depth_val < 0xffff)) {
+					fb_x = (uint16_t)(texture_ppm.width*fbx_grid[x+WIN_WIDTH*y])%texture_ppm.width;
+					fb_y = (uint16_t)(texture_ppm.height*fby_grid[x+WIN_WIDTH*y])%texture_ppm.height;
 
-				uint16_t fb_p = texture_ppm.buffer[fb_x+texture_ppm.width*fb_y];
-				if(fb_p==0xffff) fb_p = 0xfffe;
-				hidden_buffer[x+WIN_WIDTH*y] = fb_p;
-				//hidden_buffer[x+WIN_WIDTH*y] = depth_val>>11;
-				depth_buffer[x+WIN_WIDTH*y] = depth_val;
+					uint16_t fb_p = texture_ppm.buffer[fb_x+texture_ppm.width*fb_y];
+					if(fb_p==0xffff) fb_p = 0xfffe;
+					hidden_buffer[x+WIN_WIDTH*y] = fb_p;
+					//hidden_buffer[x+WIN_WIDTH*y] = depth_val>>11;
+					depth_buffer[x+WIN_WIDTH*y] = depth_val;
+				}
 			}
 		}
 }

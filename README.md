@@ -5,8 +5,8 @@ Built from scratch, it is a rendering API developed as a challenge to myself and
 
 - ~~Implement texture decoder~~;
 - ~~Implement depth checking~~;
-- Implement Matrix and quaternions operations;
-- Implement MVP matrix calculation;
+- ~~Implement Matrix and quaternions operations~~;
+- ~~Implement MVP matrix calculation~~;
 - Implement .obj file reading;
 - ...
 

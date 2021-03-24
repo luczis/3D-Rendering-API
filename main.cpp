@@ -23,7 +23,32 @@ uint16_t depth_buffer[WIN_WIDTH*WIN_HEIGHT];
 #include "imagePpmFunk.h"
 #include "rasterFunk.h"
 
-vertex cube_v[8];
+/*float cube_pos[3*8] = {
+-0.5f,-0.5f, 0.0f,
+ 0.0f,-1.0f,-1.0f,
+-0.5f, 0.5f, 0.0f,
+ 0.0f, 0.0f,-1.0f,
+ 0.0f, 0.0f, 1.0f,
+ 0.5f,-0.5f, 0.0f,
+ 0.0f, 1.0f, 1.0f,
+ 0.5f, 0.5f, 0.0f};*/
+
+float cube_pos[3*8] = {
+-1.0f,-1.0f, 0.0f,
+ 0.0f,-1.0f,-1.0f,
+-1.0f, 1.0f, 0.0f,
+ 0.0f, 1.0f,-1.0f,
+ 0.0f,-1.0f, 1.0f,
+ 1.0f,-1.0f, 0.0f,
+ 0.0f, 1.0f, 1.0f,
+ 1.0f, 1.0f, 0.0f};
+
+float cube_tex[2*4] = {
+0.0f, 0.0f,
+1.0f, 0.0f,
+0.0f, 1.0f,
+1.0f, 1.0f};
+
 uint16_t face_order[4*6] = {
 0,1,3,2,
 2,3,7,6,
@@ -31,6 +56,7 @@ uint16_t face_order[4*6] = {
 0,4,6,2,
 1,5,7,3,
 4,5,7,6};
+
 uint16_t tex_order[4*6] = {
 2,3,1,0,
 2,3,1,0,
@@ -38,6 +64,25 @@ uint16_t tex_order[4*6] = {
 2,3,1,0,
 2,3,1,0,
 2,3,1,0};
+
+float model_matrix[4*4] = {
+0.8f, 0.0f, 0.0f, 0.0f,
+0.0f, 0.8f, 0.0f, 0.0f,
+0.0f, 0.0f, 0.8f, 0.0f,
+0.0f, 0.0f, 0.0f, 0.8f};
+
+float projection_matrix[4*4] = {
+0.0f, 0.0f, 0.0f, 0.0f,
+0.0f, 0.0f, 0.0f, 0.0f,
+0.0f, 0.0f, 0.0f, 0.0f,
+0.0f, 0.0f, 0.0f, 0.0f};
+
+		float view_matrix[4*4] = {
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
 
 // Draw raster
 void drawRaster()
@@ -82,92 +127,100 @@ void display()
 		}
 	}
 
-	/*uint16_t x0,x1,x2,x3,y0,y1,y2,y3;
-	x0=(uint16_t)(rand()%WIN_WIDTH),
-	y0=(uint16_t)(rand()%WIN_HEIGHT),
-	x1=(uint16_t)(rand()%WIN_WIDTH),
-	y1=(uint16_t)(rand()%WIN_HEIGHT),
-	x2=(uint16_t)(rand()%WIN_WIDTH),
-	y2=(uint16_t)(rand()%WIN_HEIGHT),
-	x3=(uint16_t)(rand()%WIN_WIDTH),
-	y3=(uint16_t)(rand()%WIN_HEIGHT),
-	//draw_triangle(x0,y0,x1,y1,x2,y2,0x4ef2,0x1f);
-	draw_square(x0,y0,x1,y1,x2,y2,x3,y3,0x4ef2,0x1f);
-	std::cout	<<x0<<","
-				<<y0<<","
-				<<x1<<","
-				<<y1<<","
-				<<x2<<","
-				<<y2<<","
-				<<x3<<","
-				<<y3<<"\n";*/
-	//draw_triangle(536,705,351,782,589,444,0x4ff2,0x1f);
+	static float translate_vector[3] = 	{0.0f,0.0f,-3.0f};
+	static float scale_vector[3] = 		{0.5f,0.5f,0.5f};
+	static float rotate_vector[3] = 	{0.0f,1.0f,0.0f};
+	static float rotate_angle = 0.5f;
+	//translate_vector[2] *= 1.01f;
+	rotate_angle += 0.01f;
+	// Draw model
+	for(uint16_t i=0; i<24;) {
+	//		{
+	//	uint16_t i=4;
+		float pos0[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
+		float uv0[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
+		i++;
+		float pos1[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
+		float uv1[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
+		i++;
+		float pos2[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
+		float uv2[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
+		i++;
+		float pos3[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
+		float uv3[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
+		i++;
+		
+		float identity_matrix[4*4] = {
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
 
-	//draw_square(1621,75,1157,957,1649,786,919,680,0x4ef2,0x1f);
-	//drawline(589,444,351,782,0x00,0x7e00);
 
-	/*
-	//std::cout<< "abc";
-	vertex v0,v1,v2,v3;
-	v0.x = 0.5f;
-	v0.y = 0.9f;
-	v0.z = -1.0f;
-	v0.uvx = 0.0f;
-	v0.uvy = 0.0f;
-	v1.x = 0.0f;
-	v1.y = 0.9f;
-	v1.z = 0.9f;
-	v1.uvx = 1.0f;
-	v1.uvy = 0.0f;
-	v2.x = -0.2f;
-	v2.y = 0.0f;
-	v2.z = 0.0f;
-	v2.uvx = 1.0f;
-	v2.uvy = 1.0f;
-	v3.x = 0.9f;
-	v3.y = 0.0f;
-	v3.z = 0.0f;
-	v3.uvx = 0.0f;
-	v3.uvy = 1.0f;
-	draw_triangle_image(v0,v1,v2);
-	draw_triangle_image(v0,v2,v3);
-	v0.y -= 0.5f;
-	v1.y -= 0.5f;
-	v2.y -= 1.0f;
-	v3.y -= 1.0f;
-	draw_square_image(v0,v1,v2,v3);*/
-	//draw_square_image(cube_v[0],cube_v[1],cube_v[2],cube_v[4]);
-	
-	vertex v0,v1,v2,v3;
-	for(uint16_t i=0; i<24; i+=4) {
-		//printf("%i:",i);
+	//	math::mat_mult<float>(view_matrix, identity_matrix, identity_matrix, 4, 4, 4);
 
-		v0 = cube_v[face_order[i]];
-		v1 = cube_v[face_order[i+1]];
-		v2 = cube_v[face_order[i+2]];
-		v3 = cube_v[face_order[i+3]];
-		v0.uvx = cube_v[tex_order[i]].uvx;
-		v0.uvy = cube_v[tex_order[i]].uvy;
-		v1.uvx = cube_v[tex_order[i+1]].uvx;
-		v1.uvy = cube_v[tex_order[i+1]].uvy;
-		v2.uvx = cube_v[tex_order[i+2]].uvx;
-		v2.uvy = cube_v[tex_order[i+2]].uvy;
-		v3.uvx = cube_v[tex_order[i+3]].uvx;
-		v3.uvy = cube_v[tex_order[i+3]].uvy;
-		draw_square_image(v0,v1,v2,v3);
+		// Model matrix
+		model3d::scale<float>(identity_matrix, scale_vector, identity_matrix);
+		model3d::rotate<float>(identity_matrix, rotate_vector, rotate_angle, identity_matrix);
+		model3d::translate<float>(identity_matrix, translate_vector, identity_matrix);
+	//	math::mat_mult<float>(model_matrix, identity_matrix, identity_matrix, 4, 4, 4);
+
+		// Projection matrix
+		math::mat_mult<float>(projection_matrix, identity_matrix, identity_matrix, 4, 4, 4);
+
+		// Vertex
+	//	math::mat_mult<float>(pos0, identity_matrix, pos0, 4, 4, 1);
+	//	math::mat_mult<float>(pos1, identity_matrix, pos1, 4, 4, 1);
+	//	math::mat_mult<float>(pos2, identity_matrix, pos2, 4, 4, 1);
+	//	math::mat_mult<float>(pos3, identity_matrix, pos3, 4, 4, 1);
+	//	for(uint8_t j=0; j<4; j++)
+	//		printf("%f,",pos0[j]);
+	//	printf("A\n");
+		math::mat_mult<float>(identity_matrix, pos0, pos0, 4, 4, 1);
+		math::mat_mult<float>(identity_matrix, pos1, pos1, 4, 4, 1);
+		math::mat_mult<float>(identity_matrix, pos2, pos2, 4, 4, 1);
+		math::mat_mult<float>(identity_matrix, pos3, pos3, 4, 4, 1);
+		model3d::divideW<float>(pos0, pos0);
+		model3d::divideW<float>(pos1, pos1);
+		model3d::divideW<float>(pos2, pos2);
+		model3d::divideW<float>(pos3, pos3);
+		/*printf("A\n");
+		for(uint8_t j=0; j<4; j++) {
+			for(uint8_t k=0; k<4; k++)
+				printf("%f,",identity_matrix[4*j+k]);
+			printf("\n");
+		}
+		printf("B\n");
+		for(uint8_t j=0; j<4; j++)
+			printf("%f,",pos0[j]);
+		printf("\n");
+		
+		for(uint8_t j=0; j<4; j++)
+			printf("%f,",pos1[j]);
+		printf("\n");
+		for(uint8_t j=0; j<4; j++)
+			printf("%f,",pos2[j]);
+		printf("\n");
+		for(uint8_t j=0; j<4; j++)
+			printf("%f,",pos3[j]);
+		printf("\n");*/
+
+
+		draw_square_image(pos0, pos1, pos2, pos3, uv0, uv1, uv2, uv3);
 	}
 
 	drawRaster();
 
 	// Swap and call display function
 	glutSwapBuffers();
-	//glutPostRedisplay();
+	glutPostRedisplay();
 }
 
 void timer(int t)
 {
-	glutPostRedisplay();
-	glutTimerFunc(1000, timer, 0);
+	//glutPostRedisplay();
+	//glutTimerFunc(1000, timer, 0);
 }
 
 void mouse(int button, int state, int x, int y)
@@ -176,47 +229,10 @@ void mouse(int button, int state, int x, int y)
 
 void init()
 {
-	cube_v[0].x = -0.5f;
-	cube_v[0].y = -0.5f;
-	cube_v[0].z = 0.0f;
-	cube_v[0].uvx = 0.0f;
-	cube_v[0].uvy = 0.0f;
-	cube_v[1].x = 0.0f;
-	cube_v[1].y = -1.0f;
-	cube_v[1].z = -1.0f;
-	cube_v[1].uvx = 1.0f;
-	cube_v[1].uvy = 0.0f;
-	cube_v[2].x = -0.5f;
-	cube_v[2].y = 0.5f;
-	cube_v[2].z = 0.0f;
-	cube_v[2].uvx = 0.0f;
-	cube_v[2].uvy = 1.0f;
-	cube_v[3].x = 0.0f;
-	cube_v[3].y = 0.0f;
-	cube_v[3].z = -1.0f;
-	cube_v[3].uvx = 1.0f;
-	cube_v[3].uvy = 1.0f;
-	cube_v[4].x = 0.0f;
-	cube_v[4].y = 0.0f;
-	cube_v[4].z = 1.0f;
-	cube_v[4].uvx = 0.0f;
-	cube_v[4].uvy = 0.0f;
-	cube_v[5].x = 0.5f;
-	cube_v[5].y = -0.5f;
-	cube_v[5].z = 0.0f;
-	cube_v[5].uvx = 1.0f;
-	cube_v[5].uvy = 0.0f;
-	cube_v[6].x = 0.0f;
-	cube_v[6].y = 1.0f;
-	cube_v[6].z = 1.0f;
-	cube_v[6].uvx = 0.0f;
-	cube_v[6].uvy = 1.0f;
-	cube_v[7].x = 0.5f;
-	cube_v[7].y = 0.5f;
-	cube_v[7].z = 0.0f;
-	cube_v[7].uvx = 1.0f;
-	cube_v[7].uvy = 1.0f;
 
+	model3d::projection<float>(projection_matrix, WIN_WIDTH, WIN_HEIGHT, 90.0f, 1.0f, -10.0f);
+
+	//printf("%f\n",projection_matrix[4*3+3]);
 	// Initializations
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
@@ -247,7 +263,6 @@ void init()
 
 	// Load object
 	load_ppm_texture("resources/Landscape.ppm");
-
 }
 
 int main(int argc, char ** argv)

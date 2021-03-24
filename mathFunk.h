@@ -54,7 +54,6 @@ namespace math {
 	const float m_2_pi = 6.283185482025146484375f;
 
 	template<typename T>
-	// Credits to moka: https://stackoverflow.com/questions/2878076/what-is-different-about-c-math-h-abs-compared-to-my-abs
 	T abs(T val) {
 		return val < 0 ? -val : val;
 	}
@@ -383,3 +382,107 @@ public:
 		imag = x - x;
 	}
 };
+
+namespace model3d {
+	template <typename T>
+	T* translate(T* matrix, T* translate, T* result) {
+	// Translate M[4][4]->V[3]=M[4][4]
+		result[4*0+3] += translate[0];
+		result[4*1+3] += translate[1];
+		result[4*2+3] += translate[2];
+
+		return result;
+	}
+
+	template <typename T>
+	T* scale(T* matrix, T* scale, T* result) {
+	// Scale M[4][4]->V[3]=M[4][4]
+		result[4*0+0] *= scale[0];
+		result[4*1+1] *= scale[1];
+		result[4*2+2] *= scale[2];
+
+		return result;
+	}
+
+	template <typename T>
+	T* rotate(T* matrix, T* axis, float rotation, T* result)
+	// Rotate M[4][4]->(V[3]+angle)=M[4][4]
+	{
+		//TODO :: implement custom trigonometric functions for less iterations on cos and sin
+		float qs = cos(rotation / 2);
+		float qp = sin(rotation / 2);
+	
+		//Normalize
+		//{
+		//	if (glm::length(*axis) != 1.0f)
+		//		(*axis) = (*axis)*(1.0f / (axis->length()));
+		//}
+	
+		float q[3];
+		q[0] = qp * axis[0];
+		q[1] = qp * axis[1];
+		q[2] = qp * axis[2];
+
+		// This matrix is result from sandwich product of quaternions
+		// If you want to prove it, it takes some time, but it's possible. I wish you good luck myself of the future (っ◔_◔)っ
+		T rotation_mat[4*4];
+		rotation_mat[4*0+0] = 1-2*((q[1]*q[1])+(q[2]*q[2]));
+		rotation_mat[4*0+1] =   2*((q[0]*q[1])-(q[2]*qs));
+		rotation_mat[4*0+2] =   2*((q[0]*q[2])+(q[1]*qs));
+		rotation_mat[4*0+3] =   0;
+
+		rotation_mat[4*1+0] =   2*((q[0]*q[1])+(q[2]*qs));
+		rotation_mat[4*1+1] = 1-2*((q[0]*q[0])+(q[2]*q[2]));
+		rotation_mat[4*1+2] =   2*((q[1]*q[2])-(q[0]*qs));
+		rotation_mat[4*1+3] =   0;
+
+		rotation_mat[4*2+0] =   2*((q[0]*q[2])-(q[1]*qs));
+		rotation_mat[4*2+1] =   2*((q[1]*q[2])+(q[0]*qs));
+		rotation_mat[4*2+2] = 1-2*((q[0]*q[0])+(q[1]*q[1]));
+		rotation_mat[4*2+3] =   0;
+
+		rotation_mat[4*3+0] =   0;
+		rotation_mat[4*3+1] =   0;
+		rotation_mat[4*3+2] =   0;
+		rotation_mat[4*3+3] =   1;
+		math::mat_mult<T>(rotation_mat, result, result, 4, 4, 4);
+	
+		return result;
+	}
+
+	template <typename T>
+	T* projection(T* matrix, float width, float height, float FOV, float znear, float zfar) {
+		FOV = FOV * 3.14159f / 360;
+		const float fovconst = 1/tan(FOV/2);
+	//	const float zconst = zfar / (zfar-znear);
+	//	matrix[4*0+0] = fovconst * height/width;
+	//	matrix[4*1+1] = fovconst;
+	//	matrix[4*2+2] = -(zfar+znear)/(zfar-znear);
+	//	matrix[4*2+3] = -2*zfar*znear/(zfar-znear);
+		matrix[4*0+0] = fovconst * height/width;
+		matrix[4*1+1] = fovconst;
+	//	matrix[4*2+2] = zconst;
+	//	matrix[4*2+3] =-znear/(zconst);
+		matrix[4*2+2] = -(zfar+znear)/(zfar-znear);
+		matrix[4*2+3] = -2*zfar*znear/(zfar-znear);
+		matrix[4*3+2] =-1.0f;
+		matrix[4*3+3] = 0.0f;
+
+	/*	T result[16] = {
+			fovconst*height/width,			0,				0,		0,
+								0, 	 fovconst,				0,		0,
+								0,			0,		   zconst,	 1.0f,
+								0,			0,  -znear*zconst,	 1.0f};
+		matrix = result;*/
+		return matrix;
+	}
+
+	template <typename T>
+	T* divideW(T* A, T* result) {
+		result[0] = A[0]/A[3];
+		result[1] = A[1]/A[3];
+		result[2] = A[2]/A[3];
+		
+		return result;
+	}
+}
