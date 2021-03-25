@@ -34,7 +34,7 @@ uint16_t depth_buffer[WIN_WIDTH*WIN_HEIGHT];
  0.0f, 1.0f, 1.0f,
  0.5f, 0.5f, 0.0f};*/
 
-float cube_pos[3*8] = {
+/*float cube_pos[3*8] = {
 -1.0f,-1.0f, 0.0f,
  0.0f,-1.0f,-1.0f,
 -1.0f, 1.0f, 0.0f,
@@ -64,7 +64,9 @@ uint16_t tex_order[4*6] = {
 2,3,1,0,
 2,3,1,0,
 2,3,1,0,
-2,3,1,0};
+2,3,1,0};*/
+
+float light_pos[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
 float model_matrix[4*4] = {
 0.8f, 0.0f, 0.0f, 0.0f,
@@ -78,12 +80,12 @@ float projection_matrix[4*4] = {
 0.0f, 0.0f, 0.0f, 0.0f,
 0.0f, 0.0f, 0.0f, 0.0f};
 
-		float view_matrix[4*4] = {
-			1.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
+float view_matrix[4*4] = {
+1.0f, 0.0f, 0.0f, 0.0f,
+0.0f, 1.0f, 0.0f, 0.0f,
+0.0f, 0.0f, 1.0f, 0.0f,
+0.0f, 0.0f, 0.0f, 1.0f
+};
 
 // Draw raster
 void drawRaster()
@@ -130,7 +132,8 @@ void display()
 
 	static float translate_vector[3] = 	{0.0f,0.0f,-3.0f};
 	static float scale_vector[3] = 		{0.5f,0.5f,0.5f};
-	static float rotate_vector[3] = 	{0.0f,1.0f,0.0f};
+	static float rotate_vector[3] = 	{1.0f,1.0f,0.0f};
+	math::normalize<float>(rotate_vector, 3);
 	static float rotate_angle = 0.5f;
 	//translate_vector[2] *= 1.01f;
 	rotate_angle += 0.01f;
@@ -166,6 +169,19 @@ void display()
 		model3d::translate<float>(identity_matrix, translate_vector, identity_matrix);
 	//	math::mat_mult<float>(model_matrix, identity_matrix, identity_matrix, 4, 4, 4);
 
+		float normal[4] = {model.norm[3*model.norm_face[j]], model.norm[3*model.norm_face[j]+1], model.norm[3*model.norm_face[j]+2],0.0f};
+		math::mat_mult<float>(identity_matrix, normal, normal, 4, 4, 1);
+
+	/*	printf("B\n");
+		for(uint8_t l=0; l<4; l++)
+			printf("%f,",normal[l]);
+		printf("\n");
+	//	getchar();*/
+
+		float light_vector[4] = {light_pos[0]-translate_vector[0], light_pos[1]-translate_vector[1], light_pos[2]-translate_vector[2], 0.0f};
+		math::normalize(light_vector, 3);
+		float light_intensity = math::clamp<float>(math::dot_product<float>(light_vector, normal, 3),1.0f,0.05f);
+
 		// Projection matrix
 		math::mat_mult<float>(projection_matrix, identity_matrix, identity_matrix, 4, 4, 4);
 
@@ -200,9 +216,11 @@ void display()
 			math::mat_mult<float>(identity_matrix, pos3, pos3, 4, 4, 1);
 			model3d::divideW<float>(pos3, pos3);
 			j++;
-			draw_square_image(pos0, pos1, pos2, pos3, uv0, uv1, uv2, uv3);
+			draw_square_image(pos0, pos1, pos2, pos3, uv0, uv1, uv2, uv3, light_intensity);
 		}
-//		else if(model.poly_size[i] == 3)
+		else if(model.poly_size[i] == 3)
+			draw_triangle_image(pos0, pos1, pos2, uv0, uv1, uv2, light_intensity);
+
 
 		/*printf("X\n");
 		for(uint8_t l=0; l<model.size; l++)
@@ -286,7 +304,7 @@ void init()
 
 	// Load object
 	load_ppm_texture("resources/Landscape.ppm");
-	load_obj_model("resources/cube.obj");
+	load_obj_model("resources/manke.obj");
 }
 
 int main(int argc, char ** argv)

@@ -68,7 +68,7 @@ uint16_t line_to_face(uint16_t* v_pos, uint16_t* poly_pos, uint16_t* v_buffer, u
 				subline[j] = '\0';
 				//printf(subline);
 				//printf("|");
-				v_buffer[temp_pos] = string_to_uint16(subline);
+				v_buffer[temp_pos] = string_to_uint16(subline)-1;
 			}
 			i++;
 	//		printf("I%iI\n",i);
@@ -82,7 +82,7 @@ uint16_t line_to_face(uint16_t* v_pos, uint16_t* poly_pos, uint16_t* v_buffer, u
 				subline[j] = '\0';
 				//printf(subline);
 				//printf("|");
-				vt_buffer[temp_pos] = string_to_uint16(subline);
+				vt_buffer[temp_pos] = string_to_uint16(subline)-1;
 			}
 			i++;
 	//		printf("I%iI\n",i);
@@ -96,7 +96,7 @@ uint16_t line_to_face(uint16_t* v_pos, uint16_t* poly_pos, uint16_t* v_buffer, u
 				subline[j] = '\0';
 				//printf(subline);
 				//printf("|");
-				vn_buffer[temp_pos] = string_to_uint16(subline);
+				vn_buffer[temp_pos] = string_to_uint16(subline)-1;
 			}
 	//		i++;
 	//		printf("I%iI\n",i);
@@ -157,8 +157,8 @@ void load_obj_model(const char* file) {
 
 	// Allocate memory
 	model.pos = (float*)malloc(v_count*3*sizeof(float));
-	model.tex = (float*)malloc(v_count*3*sizeof(float));
-	model.norm = (float*)malloc(v_count*3*sizeof(float));
+	model.tex = (float*)malloc(vt_count*3*sizeof(float));
+	model.norm = (float*)malloc(vn_count*3*sizeof(float));
 	model.pos_face = (uint16_t*)malloc(f_count*4*sizeof(uint16_t));
 	model.tex_face = (uint16_t*)malloc(f_count*4*sizeof(uint16_t));
 	model.norm_face = (uint16_t*)malloc(f_count*4*sizeof(uint16_t));

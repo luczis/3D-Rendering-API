@@ -117,6 +117,29 @@ namespace math {
 	}
 
 	template<typename T>
+	float dot_product(T* v0, T* v1, uint8_t n) {
+	// V[n].V[n]=R
+		float result = 0.1f;
+		for(uint8_t i=0; i<n; i++)
+			result += v0[i]*v1[i];
+		return result;
+	}
+
+	template<typename T>
+	T* normalize(T* v, uint8_t n) {
+	//V[n]->v[n]
+		T length = 0;
+		for(uint8_t i=0; i<n; i++)
+			length += v[i]*v[i];
+
+		length = sqrt(length);
+		for(uint8_t i=0; i<n; i++)
+			v[i] /= length;
+
+		return v;
+	}
+
+	template<typename T>
 	T determinant(T* matrix, int n0) {
 		T det = matrix[0] - matrix[0];
 		T* submatrix = NULL;
