@@ -1,6 +1,8 @@
+#pragma once
 #include "iostream"
 #include "fstream"
 #include "vector"
+#include "stringFunk.h"
 
 struct {
 	uint16_t* buffer;
@@ -13,28 +15,6 @@ struct {
 #define PPM_COM		'#'		// Comment
 #define PPM_NL		0x0A	// New Line
 #define PPM_SPC		0x20	// Space
-
-uint16_t string_to_uint16(char* string) {
-	uint16_t result = 0;
-	uint16_t tmp_result = 0;
-	char current_char = 0x0;
-	uint8_t total_size = 0;
-
-	for(total_size=0; (total_size<16) && (string[total_size] != '\n'); total_size++) {}
-
-	for(uint8_t count=0; count<total_size; count++) {
-		current_char = string[total_size-1-count];
-		if(current_char == '\n')
-			break;
-		tmp_result = current_char&0x0f;
-		//printf("%02x|",current_char);
-		for(uint8_t i=0; i<count; i++)
-			tmp_result *= 10;
-		result += tmp_result;
-	}
-
-	return result;
-}
 
 // Comment starts with '#' and ends with a '\n'
 void ppm_comment(std::ifstream &file, char file_byte) {

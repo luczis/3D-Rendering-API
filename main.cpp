@@ -21,6 +21,7 @@ uint16_t depth_buffer[WIN_WIDTH*WIN_HEIGHT];
 
 #include "mathFunk.h"
 #include "imagePpmFunk.h"
+#include "modelFunk.h"
 #include "rasterFunk.h"
 
 /*float cube_pos[3*8] = {
@@ -134,10 +135,10 @@ void display()
 	//translate_vector[2] *= 1.01f;
 	rotate_angle += 0.01f;
 	// Draw model
-	for(uint16_t i=0; i<24;) {
+	for(uint16_t i=0, j=0; i<model.size; i++) {
 	//		{
 	//	uint16_t i=4;
-		float pos0[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
+	/*	float pos0[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
 		float uv0[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
 		i++;
 		float pos1[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
@@ -148,7 +149,7 @@ void display()
 		i++;
 		float pos3[4] = {cube_pos[3*face_order[i]], cube_pos[3*face_order[i]+1], cube_pos[3*face_order[i]+2],1.0f};
 		float uv3[2] = {cube_tex[2*tex_order[i]], cube_tex[2*tex_order[i]+1]};
-		i++;
+		i++;*/
 		
 		float identity_matrix[4*4] = {
 			1.0f, 0.0f, 0.0f, 0.0f,
@@ -156,7 +157,6 @@ void display()
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
-
 
 	//	math::mat_mult<float>(view_matrix, identity_matrix, identity_matrix, 4, 4, 4);
 
@@ -177,37 +177,60 @@ void display()
 	//	for(uint8_t j=0; j<4; j++)
 	//		printf("%f,",pos0[j]);
 	//	printf("A\n");
+		float pos0[4] = {model.pos[3*model.pos_face[j]], model.pos[3*model.pos_face[j]+1], model.pos[3*model.pos_face[j]+2],1.0f};
+		float uv0[2] = {model.tex[2*model.tex_face[j]], model.tex[2*model.tex_face[j]+1]};
 		math::mat_mult<float>(identity_matrix, pos0, pos0, 4, 4, 1);
-		math::mat_mult<float>(identity_matrix, pos1, pos1, 4, 4, 1);
-		math::mat_mult<float>(identity_matrix, pos2, pos2, 4, 4, 1);
-		math::mat_mult<float>(identity_matrix, pos3, pos3, 4, 4, 1);
 		model3d::divideW<float>(pos0, pos0);
+		j++;
+		float pos1[4] = {model.pos[3*model.pos_face[j]], model.pos[3*model.pos_face[j]+1], model.pos[3*model.pos_face[j]+2],1.0f};
+		float uv1[2] = {model.tex[2*model.tex_face[j]], model.tex[2*model.tex_face[j]+1]};
+		math::mat_mult<float>(identity_matrix, pos1, pos1, 4, 4, 1);
 		model3d::divideW<float>(pos1, pos1);
+		j++;
+		float pos2[4] = {model.pos[3*model.pos_face[j]], model.pos[3*model.pos_face[j]+1], model.pos[3*model.pos_face[j]+2],1.0f};
+		float uv2[2] = {model.tex[2*model.tex_face[j]], model.tex[2*model.tex_face[j]+1]};
+		math::mat_mult<float>(identity_matrix, pos2, pos2, 4, 4, 1);
 		model3d::divideW<float>(pos2, pos2);
-		model3d::divideW<float>(pos3, pos3);
-		/*printf("A\n");
-		for(uint8_t j=0; j<4; j++) {
+		j++;
+
+		if(model.poly_size[i] == 4) {
+		//if(model.poly_size[i] == 0) {
+			float pos3[4] = {model.pos[3*model.pos_face[j]], model.pos[3*model.pos_face[j]+1], model.pos[3*model.pos_face[j]+2],1.0f};
+			float uv3[2] = {model.tex[2*model.tex_face[j]], model.tex[2*model.tex_face[j]+1]};
+			math::mat_mult<float>(identity_matrix, pos3, pos3, 4, 4, 1);
+			model3d::divideW<float>(pos3, pos3);
+			j++;
+			draw_square_image(pos0, pos1, pos2, pos3, uv0, uv1, uv2, uv3);
+		}
+//		else if(model.poly_size[i] == 3)
+
+		/*printf("X\n");
+		for(uint8_t l=0; l<model.size; l++)
+			printf("%i,",model.pos_face[l]);
+		printf("\n");
+
+		printf("A\n");
+		for(uint8_t l=0; l<4; l++) {
 			for(uint8_t k=0; k<4; k++)
-				printf("%f,",identity_matrix[4*j+k]);
+				printf("%f,",identity_matrix[4*l+k]);
 			printf("\n");
 		}
 		printf("B\n");
-		for(uint8_t j=0; j<4; j++)
-			printf("%f,",pos0[j]);
+		for(uint8_t l=0; l<4; l++)
+			printf("%f,",pos0[l]);
 		printf("\n");
 		
-		for(uint8_t j=0; j<4; j++)
-			printf("%f,",pos1[j]);
+		for(uint8_t l=0; l<4; l++)
+			printf("%f,",pos1[l]);
 		printf("\n");
-		for(uint8_t j=0; j<4; j++)
-			printf("%f,",pos2[j]);
+		for(uint8_t l=0; l<4; l++)
+			printf("%f,",pos2[l]);
 		printf("\n");
-		for(uint8_t j=0; j<4; j++)
-			printf("%f,",pos3[j]);
-		printf("\n");*/
+	//	for(uint8_t j=0; j<4; j++)
+	//		printf("%f,",pos3[j]);
+	//	printf("\n");
+		getchar();*/
 
-
-		draw_square_image(pos0, pos1, pos2, pos3, uv0, uv1, uv2, uv3);
 	}
 
 	drawRaster();
@@ -263,6 +286,7 @@ void init()
 
 	// Load object
 	load_ppm_texture("resources/Landscape.ppm");
+	load_obj_model("resources/cube.obj");
 }
 
 int main(int argc, char ** argv)

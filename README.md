@@ -7,8 +7,12 @@ Built from scratch, it is a rendering API developed as a challenge to myself and
 - ~~Implement depth checking~~;
 - ~~Implement Matrix and quaternions operations~~;
 - ~~Implement MVP matrix calculation~~;
-- Implement .obj file reading;
+- ~~Implement .obj file reading~~;
+- Implement face curl
 - ...
 
 # Texture support
 Currently supporting only PPM, because it's simple to decode, and a base start.
+
+# Model support
+Support OBJ files, with only support to the meshes, no material.
